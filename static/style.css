@@ -1,0 +1,20 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;  
+}
+
+html, body, #map {
+  height: 100%;
+  width: 100%;
+  
+  background-color: rgb(28,28,28);
+}
+
+svg {
+  stroke: red;
+}
+
+.edges .last {
+  stroke: blue;
+}
