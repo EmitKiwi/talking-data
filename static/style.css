@@ -12,9 +12,15 @@ html, body, #map {
 }
 
 svg {
-  stroke: red;
+  stroke: white;
+  stroke-width: 15px;
 }
 
 .edges .last {
-  stroke: blue;
+  stroke-opacity: 0.4;
+  stroke-dasharray: 15, 15;  
+}
+
+circle {
+  fill: rgba(0, 0, 0, 0);
 }
