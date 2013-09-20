@@ -9,7 +9,7 @@
 	<link rel="apple-touch-icon" href="/static/apple-touch-icon.png"/>
 	<link rel="stylesheet" href="/static/leaflet.css" />
 	<link rel="stylesheet" href="/static/style.css" />
-  <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+  <script src="/static/d3.v3.min.js" charset="utf-8"></script>
 	<script src="/static/jquery-2.0.3.min.js"></script>
 	<script src="/static/leaflet.js"></script> 
 </head>
@@ -17,9 +17,15 @@
 	<div id="map"></div>
 	<div id="logo"></div>
 	<script>
+  var addingVertex = false,
+      movingVertex = false,
+      movingVertexIndex = -1;
   
   var padding = 1000000;
-  var radius = 20;
+  
+  var radiusMin = 20,
+      radiusMax = 50;
+      
   var map = new L.Map("map")
       .addLayer(new L.TileLayer("http://{s}.tiles.mapbox.com/v3/bertspaan.map-dvysiubb/{z}/{x}/{y}.png"));
       
@@ -34,33 +40,81 @@
       
   var bounds,
       vertices = {
-    "type": "FeatureCollection",
-    "features": []
+    type: "FeatureCollection",
+    features: []
   };
 
-      
+  map.on("movestart", function(e) {
+    addingVertex = false;
+  });
+
+  map.on("mousedown", function(e) {
+    addingVertex = true;
+  });
+  
+  map.on("mouseout", function(e) {
+    addingVertex = false;
+    movingVertex = false;
+    map.dragging.enable();
+  });
+  
+  map.on("mousemove", function(e) {
+    if (movingVertex) {
+      vertices.features[movingVertexIndex].geometry.coordinates = [
+        e.latlng.lng,
+        e.latlng.lat
+      ];
+
+      update();
+    }
+  });
+
+  map.on("zoomstart", function(e) {
+    map.dragging.enable();
+    movingVertex = false; 
+    addingVertex = false;
+  });
   
   map.on("mouseup", function(e) {
-    var vertex = {
-      type: "Feature",
-      properties: {},
-      geometry: {
-        type: "Point",
-        coordinates: [
-          e.latlng.lng,
-          e.latlng.lat
-        ]
-      }
-    };
+    if (addingVertex &! movingVertex) {
+      var vertex = {
+        type: "Feature",
+        properties: {
+          radius: radiusMin + (radiusMax - radiusMin) / 2,
+          x: -1
+        },
+        geometry: {
+          type: "Point",
+          coordinates: [
+            e.latlng.lng,
+            e.latlng.lat
+          ]
+        }
+      };
     
-    vertices.features.push(vertex);
-    bounds = d3.geo.bounds(vertices);
+      vertices.features.push(vertex);
+      bounds = d3.geo.bounds(vertices);
   
-    update();    
+      update(); 
+    } 
+    map.dragging.enable();
+    movingVertex = false;  
   });
 
   map.on("viewreset", update);
   update();
+  
+
+  function pulseRadius() {
+    var radius = vertices.features[movingVertexIndex].properties.radius;
+    var x = Math.asin((radius - radiusMin) / (radiusMax - radiusMin) * 2 + 1);
+    var radiusNew = (Math.sin(x + 0.001) + 1) / 2 * (radiusMax - radiusMin) + radiusMin;
+    
+    vertices.features[movingVertexIndex].properties.radius = radiusNew;
+    update();
+    
+    return movingVertex;
+  }
 
   // Reposition the SVG to cover the features.
   function update() {    
@@ -68,14 +122,20 @@
         .data(vertices.features)
         .attr("cx", function(d) { return project(d.geometry.coordinates)[0]; })
         .attr("cy", function(d) { return project(d.geometry.coordinates)[1]; })
-        .attr("r", radius);
+        .attr("r", function(d) { return d.properties.radius; });
       
     vertex.enter().append("circle")
         .attr("cx", function(d) { return project(d.geometry.coordinates)[0]; })
         .attr("cy", function(d) { return project(d.geometry.coordinates)[1]; })
-        .attr("r", radius)
-        .on("mouseover", function() { d3.select(this).transition().duration(500).attr("r", radius * 1.1); } )
-        .on("mouseout", function() { d3.select(this).transition().duration(500).attr("r", radius); } );
+        .attr("r", function(d) { return d.properties.radius; })
+        .on("mousedown", function(d, i) {
+          map.dragging.disable();
+          movingVertexIndex = i;
+          movingVertex = true;          
+          //d3.timer(pulseRadius);                      
+        });
+        
+        
 
     var edge = eg.selectAll("line")
         .data(vertices.features, function(d, i) {
@@ -104,51 +164,43 @@
   function updateEdge(edge) {
     edge
       .attr("x1", function(d, i) {     
-        var rx = Math.cos(angle(i)) * radius;        
-        var x1 = f_x1(i);
-        var x2 = f_x2(i);
+        var rx = Math.cos(angle(i)) * d.properties.radius;        
+        var x1 = f_x(i);
+        var x2 = f_x(i + 1);
         var s = (x2 > x1) ? 1 : -1;
         return x1 + rx * s; 
       })
       .attr("y1", function(d, i) { 
-        var ry = Math.sin(angle(i)) * radius;
-        var y1 = f_y1(i);
-        var y2 = f_y2(i);
-        var s = (y2 > y1) ? 1 : -1;
+        var ry = Math.sin(angle(i)) * d.properties.radius;
+        var y1 = f_y(i);
+        var y2 = f_y(i + 1);
+        var s = (y2 < y1) ? 1 : -1;
         return y1 + ry * s; 
       })
       .attr("x2", function(d, i) { 
-        var rx = Math.cos(angle(i)) * radius;        
-        var x1 = f_x1(i);
-        var x2 = f_x2(i);
+        var rx = Math.cos(angle(i)) * vertices.features[(i + 1) % vertices.features.length].properties.radius;        
+        var x1 = f_x(i);
+        var x2 = f_x(i + 1);
         var s = (x2 < x1) ? 1 : -1;
         return x2 + rx * s; 
       })
       .attr("y2", function(d, i) { 
-        var ry = Math.sin(angle(i)) * radius;
-        var y1 = f_y1(i);
-        var y2 = f_y2(i);
-        var s = (y2 < y1) ? 1 : -1;
+        var ry = Math.sin(angle(i)) * vertices.features[(i + 1) % vertices.features.length].properties.radius;
+        var y1 = f_y(i);
+        var y2 = f_y(i + 1);
+        var s = (y2 > y1) ? 1 : -1;
         return y2 + ry * s; 
         
       })
       .attr("class", function(d, i) { return (i == vertices.features.length - 1) ? "last" : ""})   
   }
   
-  function f_x1(i) {
-    return project(vertices.features[i].geometry.coordinates)[0];
+  function f_x(i) {
+    return project(vertices.features[i % vertices.features.length].geometry.coordinates)[0];
   }
   
-  function f_x2(i) {
-    return project(vertices.features[(i + 1) % vertices.features.length].geometry.coordinates)[0];
-  }
-  
-  function f_y1(i) {
-    return project(vertices.features[i].geometry.coordinates)[1];
-  }
-  
-  function f_y2(i) {
-    return project(vertices.features[(i + 1) % vertices.features.length].geometry.coordinates)[1];
+  function f_y(i) {
+    return project(vertices.features[i % vertices.features.length].geometry.coordinates)[1];
   }
 
   function dx(i) {
@@ -170,7 +222,7 @@
   }
   
   function d(i, c) {
-    if (vertices.length) {
+    if (vertices.features.length) {
       return project(vertices.features[(i + 1) % vertices.features.length].geometry.coordinates)[c] 
         - project(vertices.features[i].geometry.coordinates)[c];
     } else {
