@@ -13,9 +13,15 @@
 	<script src="/static/jquery-2.0.3.min.js"></script>
 	<script src="/static/leaflet.js"></script> 
 </head>
-<body >
+<body>  
 	<div id="map"></div>
-	<div id="logo"></div>
+	<div id="footer">
+    <div id="buttons">
+  	  <button id="reset">Reset</button>
+  	  <button id="save">Save</button>
+  	</div>
+  </div>
+  
 	<script>
   var addingVertex = false,
       movingVertex = false,
@@ -23,8 +29,8 @@
   
   var padding = 1000000;
   
-  var radiusMin = 20,
-      radiusMax = 50;
+  var radiusMin = 15,
+      radiusMax = 60;
       
   var map = new L.Map("map")
       .addLayer(new L.TileLayer("http://{s}.tiles.mapbox.com/v3/bertspaan.map-dvysiubb/{z}/{x}/{y}.png"));
@@ -44,6 +50,14 @@
     features: []
   };
 
+  d3.select("#chips").on("click", function(e) {
+    vertices = {
+      type: "FeatureCollection",
+      features: []
+    };
+    update();
+  });
+  
   map.on("movestart", function(e) {
     addingVertex = false;
   });
@@ -81,7 +95,7 @@
         type: "Feature",
         properties: {
           radius: radiusMin + (radiusMax - radiusMin) / 2,
-          x: -1
+          x: 0
         },
         geometry: {
           type: "Point",
@@ -106,14 +120,15 @@
   
 
   function pulseRadius() {
-    var radius = vertices.features[movingVertexIndex].properties.radius;
-    var x = Math.asin((radius - radiusMin) / (radiusMax - radiusMin) * 2 + 1);
-    var radiusNew = (Math.sin(x + 0.001) + 1) / 2 * (radiusMax - radiusMin) + radiusMin;
-    
-    vertices.features[movingVertexIndex].properties.radius = radiusNew;
-    update();
-    
-    return movingVertex;
+    if (movingVertex) {
+      var x = vertices.features[movingVertexIndex].properties.x + 0.07;
+      var radiusNew = (Math.sin(x) + 1) / 2 * (radiusMax - radiusMin) + radiusMin;
+
+      vertices.features[movingVertexIndex].properties.radius = radiusNew;
+      vertices.features[movingVertexIndex].properties.x = x;
+      update();
+    }
+    return !movingVertex;
   }
 
   // Reposition the SVG to cover the features.
@@ -132,10 +147,10 @@
           map.dragging.disable();
           movingVertexIndex = i;
           movingVertex = true;          
-          //d3.timer(pulseRadius);                      
+          d3.timer(pulseRadius);                      
         });
         
-        
+    vertex.exit().remove();   
 
     var edge = eg.selectAll("line")
         .data(vertices.features, function(d, i) {
@@ -163,19 +178,31 @@
   
   function updateEdge(edge) {
     edge
-      .attr("x1", function(d, i) {     
-        var rx = Math.cos(angle(i)) * d.properties.radius;        
+      .attr("x1", function(d, i) {
+        var rx = Math.cos(angle(i)) * d.properties.radius;
         var x1 = f_x(i);
         var x2 = f_x(i + 1);
         var s = (x2 > x1) ? 1 : -1;
-        return x1 + rx * s; 
+          
+        return x1 + rx * s;           
       })
       .attr("y1", function(d, i) { 
         var ry = Math.sin(angle(i)) * d.properties.radius;
         var y1 = f_y(i);
         var y2 = f_y(i + 1);
         var s = (y2 < y1) ? 1 : -1;
-        return y1 + ry * s; 
+                
+        // TODO: Waarom?
+        var dyi = y2 - y1;
+        var dxi = f_x(i + 1) - f_x(i); 
+
+        if (dxi >= 0 && dyi >=0) {
+          return y1 - ry * s;  
+        } else if (dxi < 0 && dyi < 0) {
+          return y1 - ry * s;  
+        } else {
+          return y1 + ry * s;  
+        }   
       })
       .attr("x2", function(d, i) { 
         var rx = Math.cos(angle(i)) * vertices.features[(i + 1) % vertices.features.length].properties.radius;        
@@ -188,8 +215,21 @@
         var ry = Math.sin(angle(i)) * vertices.features[(i + 1) % vertices.features.length].properties.radius;
         var y1 = f_y(i);
         var y2 = f_y(i + 1);
-        var s = (y2 > y1) ? 1 : -1;
-        return y2 + ry * s; 
+        var s = (y2 > y1) ? 1 : -1;        
+        
+        // TODO: Waarom?
+        var dyi = y2 - y1;
+        var dxi = f_x(i + 1) - f_x(i); 
+
+        if (dxi >= 0 && dyi >=0) {
+          return y2 - ry * s;  
+        } else if (dxi < 0 && dyi < 0) {
+          return y2 - ry * s;  
+        } else {
+          return y2 + ry * s;  
+        } 
+        
+        //return y2 + ry * s; 
         
       })
       .attr("class", function(d, i) { return (i == vertices.features.length - 1) ? "last" : ""})   
@@ -203,6 +243,15 @@
     return project(vertices.features[i % vertices.features.length].geometry.coordinates)[1];
   }
 
+  function d(i, c) {
+    if (vertices.features.length) {
+      return project(vertices.features[(i + 1) % vertices.features.length].geometry.coordinates)[c] 
+        - project(vertices.features[i].geometry.coordinates)[c];
+    } else {
+      return 0;
+    }
+  }
+  
   function dx(i) {
     return d(i, 0);
   }
@@ -221,19 +270,6 @@
     return Math.atan(r);
   }
   
-  function d(i, c) {
-    if (vertices.features.length) {
-      return project(vertices.features[(i + 1) % vertices.features.length].geometry.coordinates)[c] 
-        - project(vertices.features[i].geometry.coordinates)[c];
-    } else {
-      return 0;
-    }
-  }
-
-  
-
-  
-
   // Use Leaflet to implement a D3 geographic projection.
   function project(x) {
     var point = map.latLngToLayerPoint(new L.LatLng(x[1], x[0]));

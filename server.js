@@ -29,6 +29,11 @@ app.get("/", function(req, res) {
 	render(res, "index.html");
 });
 
+app.post("/save", function(req, res) {
+	render(res, "index.html");
+});
+
+
 app.get("/client", function(req, res) {
 	render(res, "client.html");
 });
