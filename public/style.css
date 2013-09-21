@@ -24,7 +24,6 @@ html, body, #map {
 
 svg {
   stroke: white;
-  stroke-width: 20px;
 }
 
 .edges .last {
@@ -35,4 +34,12 @@ svg {
 
 circle {
   fill: rgba(0, 0, 0, 0);
+}
+
+a:visited {
+  color: white;
+}
+
+#index {
+  font-size: 50px; 
 }

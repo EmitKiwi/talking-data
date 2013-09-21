@@ -7,6 +7,8 @@ var padding = 1000000;
 var radiusMin = 15,
     radiusMax = 60;
     
+var strokeWidth = 20;
+    
 var map = new L.Map("map")
     .addLayer(new L.TileLayer("http://{s}.tiles.mapbox.com/v3/bertspaan.map-dvysiubb/{z}/{x}/{y}.png"));
     
@@ -14,7 +16,7 @@ map.removeControl(map.zoomControl);
 map.removeControl(map.attributionControl);
 map.setView([52.3674, 4.915], 5);        
 
-var svg = d3.select(map.getPanes().overlayPane).append("svg"),
+var svg = d3.select(map.getPanes().overlayPane).append("svg").attr("id", "drawing"),
     g = svg.append("g").attr("class", "leaflet-zoom-hide"),
     eg = g.append("g").attr("class", "edges"),
     vg = g.append("g").attr("class", "vertices");
@@ -26,14 +28,34 @@ var bounds,
 };
 
 d3.select("#save").on("click", function(e) {
-  //Grijp SVG
-  var data = {
-    svg: null,
-    geojson: vertices
-  }
+	var svg  = document.getElementById("drawing");
+	var xml = (new XMLSerializer).serializeToString(svg);
   
-  //Stuur op naar /save
+  // Remove translation
+  xml = xml.replace(/transform=\"translate\(\d+,\d+\)\"/g, "");
+  
+  // Remove size and margin
+  xml = xml.replace(/ width=\"\d+"/g, "");
+  xml = xml.replace(/ height=\"\d+"/g, "");
+  xml = xml.replace(/margin-left: .*;/g, "");
+  xml = xml.replace(/margin-top: .*;/g, "");
+  
+  // Add black stroke color
+  xml = xml.replace(/ stroke/g, " stroke=\"#000000\" stroke");  
 
+  var data = {
+    name: "Bert Spaan",
+    svg: xml,
+    geojson: vertices
+  };
+  
+  // Send to server
+  $.ajax("save", {
+    data : JSON.stringify(data),
+      contentType : 'application/json',
+      type : 'POST'
+    }
+  );
 
 });
 
@@ -157,6 +179,8 @@ function update() {
       .attr("cx", function(d) { return project(d.geometry.coordinates)[0]; })
       .attr("cy", function(d) { return project(d.geometry.coordinates)[1]; })
       .attr("r", function(d) { return d.properties.radius; })
+      .attr("fill", "none")
+      .attr("stroke-width", strokeWidth)      
       .on("mousedown", function(d, i) {
         map.dragging.disable();
         movingVertexIndex = i;
@@ -172,7 +196,7 @@ function update() {
       });
  
   updateEdge(edge);
-  updateEdge(edge.enter().append("line"));        
+  updateEdge(edge.enter().append("line").attr("stroke-width", strokeWidth));
       
   edge.exit().remove();
           
@@ -243,7 +267,7 @@ function updateEdge(edge) {
         return y2 + ry * s;  
       }         
     })
-    .attr("class", function(d, i) { return (i == vertices.features.length - 1) ? "last" : ""})   
+    .attr("class", function(d, i) { return (i == vertices.features.length - 1) ? "last" : ""});
 }
 
 function f_x(i) {
