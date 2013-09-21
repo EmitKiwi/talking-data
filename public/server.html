@@ -7,8 +7,22 @@
 	<link rel="stylesheet" href="/style.css" />
 	<script src="jquery-2.0.3.min.js"></script>
   <script src="d3.v3.min.js" charset="utf-8"></script>
+  <script>
+    d3.json("data.json", function(error, json) {
+      d3.select("ol").selectAll("li")
+        .data(json)
+        .enter()
+      .append("li")
+      .append("a")
+        .attr("href", function(d) { return "/svg/" + d.id + ".svg"; })
+        .html(function(d) { return d.name; });        
+      // .append("div")
+      //   .html(function(d) { return d.svg; });
+    });
+  </script>
 </head>
-<body >
-
+<body>
+  <ol>
+  </ol>
 </body>
 </html>
