@@ -162,42 +162,38 @@ function validate(){
       }
     );
 	  
-	  
-		//set timer and return to clean map
-		
+		//feedback dialog
 		$('#feedback_header').html("Saving");
 		$.mobile.changePage('#feedBack', {transition: 'pop', role: 'dialog'}); 
 		$('#feedback_txt').html("Thanks! Your map is saved and sent to production!");
-		timer = setInterval(function() { 
-      sendAndDone();
-      reset(false);
-    }, 2000);
+		reset(true);
     
 	}
 
 };
 
-function sendAndDone(){
-	clearInterval(timer);
-	//$('.ui-dialog').dialog ('close');
-	$.mobile.changePage('#map_page', { transition: "flip"} );
-}
 
-function reset(flip) {
-  
+function reset(saved) {
+  clearInterval(timer);
   vertices = {
     type: "FeatureCollection",
     features: []
   };
   update();
   
-  if (flip) {
-  	$("#user_name").val("");
-  	$('#feedback_header').html("Resetting");
-  	$.mobile.changePage('#feedBack', {transition: 'pop', role: 'dialog'}); 
-  	$('#feedback_txt').html("Resetting map ......");					
-  	timer = setInterval(function(){sendAndDone()},1000);
+  if (saved) {		
+  	timer = setInterval(function(){
+  	  $.mobile.changePage('#map_page', {transition: 'flip'});
+  	  clearInterval(timer); 
+  	  },2000);
   	console.log("reset");			
+  }else{
+    
+  	$.mobile.changePage('#reset_page', {transition: 'fade'}); 			
+  	timer = setInterval(function(){
+  	  $.mobile.changePage('#map_page', {transition: 'fade'});
+  	  clearInterval(timer);
+  	  },250);
   }
 };
 
