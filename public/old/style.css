@@ -1,0 +1,46 @@
+body {
+  margin: 0;
+  padding: 0;
+  overflow: hidden;  
+  color: white;
+}
+
+html, body, #map {
+  width: 100%;
+  background-color: rgb(28,28,28);
+}
+
+#map {
+  top: 0;
+  bottom: 50px;
+  position: absolute;
+}
+
+#footer {
+  bottom: 0;
+  height: 50px;
+  position: absolute;
+  width: 100%;
+}
+
+svg {
+  stroke: white;
+}
+
+.edges .last {
+  stroke-opacity: 0.5;
+  /*stroke-dasharray: 25, 35;  */
+  stroke-linecap: round;
+}
+
+circle {
+  fill: rgba(0, 0, 0, 0);
+}
+
+a:visited {
+  color: white;
+}
+
+#index {
+  font-size: 50px; 
+}

@@ -1,25 +1,121 @@
 <!DOCTYPE html>
 <html>
-<head>    
-  <title>Talking Data</title>
-	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
-	<meta name="apple-mobile-web-app-capable" content="yes" />
-	<meta name="apple-mobile-web-app-status-bar-style" content="black" />
-	<link rel="stylesheet" href="leaflet.css" />
-	<link rel="stylesheet" href="style.css" />
-  <script src="d3.v3.min.js" charset="utf-8"></script>
-	<script src="jquery-2.0.3.min.js"></script>
-	<script src="leaflet.js"></script> 
+<head>
+    <title>Talking Data</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1 user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
+		<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
+		
+		<link rel="stylesheet" href="css/jquerymobile/default_theme.css" />
+		<link rel="stylesheet" href="css/jquerymobile/jquery.mobile.structure-1.3.2.min.css" />
+	
+		<link rel="stylesheet" href="style.css"/>
+		<link rel="stylesheet" href="leaflet.css" />
+		<link rel="stylesheet" href="style.css" />
+		
+		<script type="text/javascript" src="jquery-2.0.3.min.js"></script>
+		<script type="text/javascript" src="jquery.mobile-1.3.2.min.js"></script>
+	  
+		<script src="d3.v3.min.js" charset="utf-8"></script>
+		<script src="leaflet.js"></script>
+		<script type="text/javascript" src="map.js"></script>
+				
 </head>
-<body>  
-	<div id="map"></div>
-	<div id="footer">
-    <div id="buttons">
-  	  <button id="reset">Reset</button>
-  	  <button id="save">Save</button>
-  	</div>
-  </div>
-  	<script src="map.js"></script> 
+<body>
+		<!-- map page -->		
+    <div data-role="page" id="map_page"> 
+ 
+       <div data-role="content">
+       		<div id="map"></div>
+       </div><!-- /content --> 
+
+			<div data-role="footer" data-id="footer_map" data-position="fixed">
+				<div data-role="navbar" data-iconpos="left">
+					<ul>
+						<li><a onclick="reset(true)" data-icon="delete" id="reset">Reset</a></li>
+						<li><a href="#info" data-icon="info" data-transition="fade">Info</a></li>
+						<li><a onclick="save()" data-icon="check" data-transition="flip">Create</a></li>
+					</ul>
+				</div><!-- /navbar -->
+			</div><!-- /footer -->
+    </div><!-- /page -->
+
+		<!-- fill in form page -->
+		<div data-role="page" data-theme="a" id="user_form">
+			<div data-role="header" data-position="fixed" data-theme="a">
+      	<h1>Talking Data - Create</h1>
+      </div><!-- /header -->
+			
+			<div data-role="content">
+				<div id="save_form">
+					<from>
+						<label for="name">Name</label>
+				  	<input type="text" name="name" id="user_name" value="">
+						<hr>
+							<label><input type="checkbox" name="t-shirt">T-shirt (5 euro)</label>
+							<label><input type="checkbox" name="wood">Wood cut-out (5 euro) </label>
+							<label><input type="checkbox" name="plastic">Plastic cut-out (5 euro)</label>
+						<hr>
+					</form>
+					<!-- <div class="rectangle">
+											<img id="preview" src="images/preview.png">							
+										</div> -->
+				</div>
+			</div><!-- /content -->
+
+			<div data-role="footer" data-id="footer_form" data-position="fixed">
+				<div data-role="navbar" data-iconpos="left">
+					<ul>
+						<li><a href="#map_page" data-icon="back" data-transition="flip">Back to map</a></li>
+						<li><a onclick="validate()" data-icon="check" data-transition="flip" id="save" >Send to production</a></li>
+
+					</ul>
+				</div><!-- /navbar -->
+			</div><!-- /footer -->
+		
+		</div><!-- /page -->
+		
+		<!-- info pagepage -->
+		<div data-role="page" id="info">
+
+      <div data-role="header" data-position="fixed" data-theme="a">
+      	<h1>Info &amp; instructions</h1>
+       </div><!-- /header -->
+
+			<div data-role="content">
+					<div style="padding:1em;">
+					<h4>Create your personal story on the map.</h4>	
+					<p>Waag Society invites you to tell your personal story and create beautiful data graphics that you can print on your t-shirt, dress or bag or cut-out in wood or plastic as a earring or necklace. How? By selecting the places that you share special memories with or that are either way important to you.
+
+						<br>Add places by push and drag on the map, push and hold a circle to change the size. When your story is set on the map you can send it to produce it.
+					</p>
+					</div>
+				<div class="rectangle">
+					<img src="images/preview_cutout.jpg">							
+				</div>
+				
+			</div><!-- /content -->
+			
+			<div data-role="footer" data-id="footer_info" data-position="fixed">
+				<div data-role="navbar" data-iconpos="left">
+					<ul>
+						<li><a href="#map_page" data-icon="back" data-transition="fade">Back to map</a></li>
+					</ul>
+				</div><!-- /navbar -->
+			</div><!-- /footer -->
+		
+		</div><!-- /page -->
+		
+		<!-- feed back dialog/error -->
+		<div data-role="page" id="feedBack">
+		  <div data-role="header">
+		    <h2 id="feedback_header"></h2>
+		  </div>
+		  <div data-role="content">
+		    <p id="feedback_txt"></p>
+		  </div>
+		</div>
+
 </body>
 </html>

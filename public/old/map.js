@@ -8,198 +8,152 @@ var radiusMin = 15,
     radiusMax = 60;
     
 var strokeWidth = 20;
+    
+var map = new L.Map("map")
+    .addLayer(new L.TileLayer("http://{s}.tiles.mapbox.com/v3/bertspaan.map-dvysiubb/{z}/{x}/{y}.png"));
+    
+map.removeControl(map.zoomControl);
+map.removeControl(map.attributionControl);
+map.setView([52.3674, 4.915], 5);        
 
-$(document).bind("ready", function() {
-	console.log("kick off talking data map");
-	//window.addEventListener('resize', onWindowResize, false);
-	initMap();
+var svg = d3.select(map.getPanes().overlayPane).append("svg").attr("id", "drawing"),
+    g = svg.append("g").attr("class", "leaflet-zoom-hide"),
+    eg = g.append("g").attr("class", "edges"),
+    vg = g.append("g").attr("class", "vertices");
+    
+var bounds,
+    vertices = {
+  type: "FeatureCollection",
+  features: []
+};
+
+d3.select("#save").on("click", function(e) {
+	var svg  = document.getElementById("drawing");
+	var xml = (new XMLSerializer).serializeToString(svg);
+  
+  // Remove translation
+  xml = xml.replace(/transform=\"translate\(\d+,\d+\)\"/g, "");
+  
+  // Remove size and margin
+  xml = xml.replace(/ width=\"\d+"/g, "");
+  xml = xml.replace(/ height=\"\d+"/g, "");
+  xml = xml.replace(/margin-left: .*;/g, "");
+  xml = xml.replace(/margin-top: .*;/g, "");
+  
+  // Add black stroke color
+  xml = xml.replace(/ stroke/g, " stroke=\"#000000\" stroke");  
+
+  var data = {
+    name: "Bert Spaan",
+    svg: xml,
+    geojson: vertices
+  };
+  
+  // Send to server
+  $.ajax("save", {
+    data : JSON.stringify(data),
+      contentType : 'application/json',
+      type : 'POST'
+    }
+  );
 
 });
 
-var map, svg, g, eg, vg, bounds, timer;
 
-function initMap(container){
-
-  $("#map").css({
-     'position':"absolute",
-     'left':0+"px",
-     'top':0+"px",
-     'width':window.innerWidth+"px",
-     'height':window.innerHeight+"px",
-     'z-index':0
-   });
-
-
-  map = new L.Map("map", {
-    minZoom: 2
-      })
-      .addLayer(new L.TileLayer("http://{s}.tiles.mapbox.com/v3/bertspaan.map-dvysiubb/{z}/{x}/{y}.png"));
-
-  map.removeControl(map.zoomControl);
-  map.removeControl(map.attributionControl);
-  map.setView([52.3674, 4.915], 5);        
-
-  svg = d3.select(map.getPanes().overlayPane).append("svg").attr("id", "drawing"),
-      g = svg.append("g").attr("class", "leaflet-zoom-hide"),
-      eg = g.append("g").attr("class", "edges"),
-      vg = g.append("g").attr("class", "vertices");
-
-  bounds,
-      vertices = {
-    type: "FeatureCollection",
-    features: []
-  };
-  
-
-
-  map.on("movestart", function(e) {
-    addingVertex = false;
-  });
-
-
-  map.on("mousedown", function(e) {
-    addingVertex = true;
-  });
-
-  map.on("mouseout", function(e) {
-    addingVertex = false;
-    movingVertex = false;
-    map.dragging.enable();
-  });
-
-  map.on("mousemove", function(e) {
-    if (movingVertex) {
-      vertices.features[movingVertexIndex].geometry.coordinates = [
-        e.latlng.lng,
-        e.latlng.lat
-      ];
-
-      update();
-    }
-  });
-
-  map.on("zoomstart", function(e) {
-    map.dragging.enable();
-    movingVertex = false; 
-    addingVertex = false;
-  });
-
-  map.on("mouseup", function(e) {
-    if (addingVertex &! movingVertex) {
-      var vertex = {
-        type: "Feature",
-        properties: {
-          radius: radiusMin + (radiusMax - radiusMin) / 2,
-          x: 0
-        },
-        geometry: {
-          type: "Point",
-          coordinates: [
-            e.latlng.lng,
-            e.latlng.lat
-          ]
-        }
-      };
-
-      vertices.features.push(vertex);
-      bounds = d3.geo.bounds(vertices);
-
-      update(); 
-    } 
-    map.dragging.enable();
-    movingVertex = false;  
-  });
-
-  map.on("viewreset", update);
-  update();
-
-  
-
-}
-
-function save(){
-	console.log("save clicked");
-	$.mobile.changePage('#user_form', { transition: "flip"} );
-	
-};
-
-function validate(){
-	console.log("send clicked");
-	
-	if($("#user_name").val().length<3){
-		
-		$('#feedback_header').html("Validation required");
-		$('#feedback_txt').html("Fill in your name.<br>Close this dialog and retry.");			
-		$.mobile.changePage('#feedBack', {transition: 'pop', role: 'dialog'}); 
-		
-	} else {
-	  var svg  = document.getElementById("drawing");
-  	var xml = (new XMLSerializer).serializeToString(svg);
-
-    // Remove translation
-    xml = xml.replace(/transform=\"translate\(\d+,\d+\)\"/g, "");
-
-    // Remove size and margin
-    xml = xml.replace(/ width=\"\d+"/g, "");
-    xml = xml.replace(/ height=\"\d+"/g, "");
-    xml = xml.replace(/margin-left: .*;/g, "");
-    xml = xml.replace(/margin-top: .*;/g, "");
-
-    // Add black stroke color
-    xml = xml.replace(/ stroke/g, " stroke=\"#000000\" stroke");  
-
-    var data = {
-      name: $("#user_name").val(),
-      svg: xml,
-      geojson: vertices
-    };
-
-    // Send to server
-    $.ajax("/save", {
-      data : JSON.stringify(data),
-        contentType : 'application/json',
-        type : 'POST'
-      }
-    );
-	  
-	  
-		//set timer and return to clean map
-		
-		$('#feedback_header').html("Saving");
-		$.mobile.changePage('#feedBack', {transition: 'pop', role: 'dialog'}); 
-		$('#feedback_txt').html("Thanks! Your map is saved and sent to production!");
-		timer = setInterval(function() { 
-      sendAndDone();
-      reset(false);
-    }, 2000);
-    
-	}
-
-};
-
-function sendAndDone(){
-	clearInterval(timer);
-	//$('.ui-dialog').dialog ('close');
-	$.mobile.changePage('#map_page', { transition: "flip"} );
-}
-
-function reset(flip) {
-  
+d3.select("#reset").on("click", function(e) {
   vertices = {
     type: "FeatureCollection",
     features: []
   };
   update();
-  
-  if (flip) {
-  	$("#user_name").val("");
-  	$('#feedback_header').html("Resetting");
-  	$.mobile.changePage('#feedBack', {transition: 'pop', role: 'dialog'}); 
-  	$('#feedback_txt').html("Resetting map ......");					
-  	timer = setInterval(function(){sendAndDone()},1000);
-  	console.log("reset");			
+});
+
+map.on("movestart", function(e) {
+  addingVertex = false;
+});
+
+
+
+
+$( "#map" ).on( "touchmove", function() {
+     alert("chips");
+});
+
+
+map.on("touchstart", function(e) {
+  addingVertex = true;
+      alert("HOND");
+});
+
+map.on("touchmove", function(e) {
+  alert("VIS");
+
+
+
+
+
+
+
+});
+
+
+
+map.on("mousedown", function(e) {
+  addingVertex = true;
+});
+
+map.on("mouseout", function(e) {
+  addingVertex = false;
+  movingVertex = false;
+  map.dragging.enable();
+});
+
+map.on("mousemove", function(e) {
+  if (movingVertex) {
+    vertices.features[movingVertexIndex].geometry.coordinates = [
+      e.latlng.lng,
+      e.latlng.lat
+    ];
+
+    update();
   }
-};
+});
+
+map.on("zoomstart", function(e) {
+  map.dragging.enable();
+  movingVertex = false; 
+  addingVertex = false;
+});
+
+map.on("mouseup", function(e) {
+  if (addingVertex &! movingVertex) {
+    var vertex = {
+      type: "Feature",
+      properties: {
+        radius: radiusMin + (radiusMax - radiusMin) / 2,
+        x: 0
+      },
+      geometry: {
+        type: "Point",
+        coordinates: [
+          e.latlng.lng,
+          e.latlng.lat
+        ]
+      }
+    };
+  
+    vertices.features.push(vertex);
+    bounds = d3.geo.bounds(vertices);
+
+    update(); 
+  } 
+  map.dragging.enable();
+  movingVertex = false;  
+});
+
+map.on("viewreset", update);
+update();
+
 
 function pulseRadius() {
   if (movingVertex) {

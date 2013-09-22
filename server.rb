@@ -2,6 +2,7 @@ require 'json'
 require 'sinatra'
 require "sequel"
   
+set :bind, '0.0.0.0'  
 set :public_folder, 'public'
 
 DB = Sequel.connect('postgres://postgres:postgres@localhost/talkingdata')
@@ -21,8 +22,12 @@ end
 
 get '/data.json' do
   content_type 'application/json'
-  return table.select(:id, :name, :svg, :date_created).all.to_json
+  return table.select(:id, :name, :svg, :date_created).order(Sequel.desc(:date_created)).all.to_json
 end
+
+#delete '/user/:id' do |id|
+#   #do something in the model
+#end
 
 get '/svg/:id.svg' do |id|
   content_type 'image/svg+xml'
