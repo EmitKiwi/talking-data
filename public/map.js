@@ -9,11 +9,6 @@ var radiusMin = 15,
     
 var strokeWidth = 20;
 
-$(document).bind("ready", function() {
-	//window.addEventListener('resize', onWindowResize, false);
-	initMap();
-});
-
 var map, svg, g, eg, vg, bounds, timer;
 
 function initMap() {
@@ -22,9 +17,8 @@ function initMap() {
   //var tileUrl = "http://{s}.tiles.mapbox.com/v3/bertspaan.map-dvysiubb/{z}/{x}/{y}.png";
 
   map = new L.Map("map", {
-    minZoom: 2
-      })
-      .addLayer(new L.TileLayer(tileUrl));
+      minZoom: 2
+    }).addLayer(new L.TileLayer(tileUrl));
 
   map.removeControl(map.zoomControl);
   map.removeControl(map.attributionControl);
@@ -35,12 +29,10 @@ function initMap() {
       eg = g.append("g").attr("class", "edges"),
       vg = g.append("g").attr("class", "vertices");
 
-  bounds,
-      vertices = {
+  vertices = {
     type: "FeatureCollection",
     features: []
   };
-  
 
 
   map.on("movestart", function(e) {
@@ -108,85 +100,15 @@ function initMap() {
 
 }
 
-function save(){
-	console.log("save clicked");
-	$.mobile.changePage('#user_form', { transition: "flip"} );
-	
-};
 
-function validate(){
-	console.log("send clicked");
-	
-	if($("#user_name").val().length<3){
-		
-		$('#feedback_header').html("Validation required");
-		$('#feedback_txt').html("Fill in your name.<br>Close this dialog and retry.");			
-		$.mobile.changePage('#feedBack', {transition: 'pop', role: 'dialog'}); 
-		
-	} else {
-	  var svg  = document.getElementById("drawing");
-  	var xml = (new XMLSerializer).serializeToString(svg);
-
-    // Remove translation
-    xml = xml.replace(/transform=\"translate\(\d+,\d+\)\"/g, "");
-
-    // Remove size and margin
-    xml = xml.replace(/ width=\"\d+"/g, "");
-    xml = xml.replace(/ height=\"\d+"/g, "");
-    xml = xml.replace(/margin-left: .*;/g, "");
-    xml = xml.replace(/margin-top: .*;/g, "");
-
-    // Add black stroke color
-    xml = xml.replace(/ stroke/g, " stroke=\"#000000\" stroke");  
-
-    var data = {
-      name: $("#user_name").val(),
-      svg: xml,
-      geojson: vertices
-    };
-
-    // Send to server
-    $.ajax("/save", {
-      data : JSON.stringify(data),
-        contentType : 'application/json',
-        type : 'POST'
-      }
-    );
-	  
-		//feedback dialog
-		$('#feedback_header').html("Saving");
-		$.mobile.changePage('#feedBack', {transition: 'pop', role: 'dialog'}); 
-		$('#feedback_txt').html("Thanks! Your map is saved and sent to production!");
-		reset(true);
-    
-	}
-
-};
-
-
-function reset(saved) {
-  clearInterval(timer);
+function reset() {
   vertices = {
     type: "FeatureCollection",
     features: []
   };
   update();
-  
-  if (saved) {		
-  	timer = setInterval(function(){
-  	  $.mobile.changePage('#map_page', {transition: 'flip'});
-  	  clearInterval(timer); 
-  	  },2000);
-  	console.log("reset");			
-  }else{
-    
-  	$.mobile.changePage('#reset_page', {transition: 'fade'}); 			
-  	timer = setInterval(function(){
-  	  $.mobile.changePage('#map_page', {transition: 'fade'});
-  	  clearInterval(timer);
-  	  },250);
-  }
-};
+}
+
 
 function pulseRadius() {
   if (movingVertex) {
