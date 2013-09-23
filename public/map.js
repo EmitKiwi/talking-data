@@ -10,30 +10,21 @@ var radiusMin = 15,
 var strokeWidth = 20;
 
 $(document).bind("ready", function() {
-	console.log("kick off talking data map");
 	//window.addEventListener('resize', onWindowResize, false);
 	initMap();
-
 });
 
 var map, svg, g, eg, vg, bounds, timer;
 
-function initMap(container){
-
-  $("#map").css({
-     'position':"absolute",
-     'left':0+"px",
-     'top':0+"px",
-     'width':window.innerWidth+"px",
-     'height':window.innerHeight+"px",
-     'z-index':0
-   });
-
+function initMap() {
+  
+  var tileUrl = "http://{s}.tile.stamen.com/toner/{z}/{x}/{y}.png";
+  //var tileUrl = "http://{s}.tiles.mapbox.com/v3/bertspaan.map-dvysiubb/{z}/{x}/{y}.png";
 
   map = new L.Map("map", {
     minZoom: 2
       })
-      .addLayer(new L.TileLayer("http://{s}.tiles.mapbox.com/v3/bertspaan.map-dvysiubb/{z}/{x}/{y}.png"));
+      .addLayer(new L.TileLayer(tileUrl));
 
   map.removeControl(map.zoomControl);
   map.removeControl(map.attributionControl);

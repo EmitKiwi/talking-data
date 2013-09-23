@@ -39,7 +39,7 @@ a, a:visited {
 
 html, body, #map {
   width: 100%;
-  background-color: rgb(28,28,28);
+  background-color: black;
   
 }
 
@@ -75,7 +75,7 @@ html, body, #map {
 }
 
 svg {
-  stroke: white;
+  stroke: #74c200;
 }
 
 .edges .last {
@@ -86,9 +86,4 @@ svg {
 
 circle {
   fill: rgba(0, 0, 0, 0);
-}
-
-
-#feedback {
-  background-color: rgb(28,28,28);
 }
