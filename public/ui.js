@@ -1,3 +1,5 @@
+var timer;
+
 $(document).bind("ready", function() {
 	//window.addEventListener('resize', onWindowResize, false);
 	initMap();
@@ -61,7 +63,7 @@ function validate(){
 
 function reset(saved) {
   clearInterval(timer);
-  
+  resetMap();
   if (saved) {		
   	timer = setInterval(function(){
   	  $.mobile.changePage('#map_page', {transition: 'flip'});

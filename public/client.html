@@ -35,8 +35,9 @@
 			<div data-role="footer" data-id="footer_map" data-position="fixed">
 				<div data-role="navbar" data-iconpos="left">
 					<ul>
-						<li><a onclick="reset(false)" data-icon="delete" id="reset">Reset</a></li>
 						<li><a href="#info" data-icon="info" data-transition="fade">Info</a></li>
+						<li><a onclick="reset(false)" data-icon="delete" id="reset">Reset</a></li>
+						<li><a onclick="undo()" data-icon="undo">Undo</a></li>
 						<li><a onclick="save()" data-icon="check" data-transition="flip">Create</a></li>
 					</ul>
 				</div><!-- /navbar -->
@@ -109,22 +110,7 @@
 		
 		</div><!-- /page -->
 		
-		<!-- reset page -->		
-    <div data-role="page" id="reset_page"> 
- 
-       <div data-role="content">
-				<div data-role="footer" data-id="footer_map" data-position="fixed">
-					<div data-role="navbar" data-iconpos="left">
-						<ul>
-							<li><a href="#" data-icon="delete">Reset</a></li>
-							<li><a href="#" data-icon="info">Info</a></li>
-							<li><a href="#" data-icon="check">Create</a></li>
-						</ul>
-					</div><!-- /navbar -->
-				</div><!-- /footer -->
-	    </div><!-- /page -->
-       </div><!-- /content --> 
-    </div><!-- /page -->
+
 		
 		<!-- feed back dialog/error -->
 		<div data-role="page" id="feedBack">

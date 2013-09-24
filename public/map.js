@@ -9,7 +9,7 @@ var radiusMin = 15,
     
 var strokeWidth = 20;
 
-var map, svg, g, eg, vg, bounds, timer;
+var map, svg, g, eg, vg, bounds, vertices, undoStates = [], previousPulseMillis;
 
 function initMap() {
   
@@ -83,12 +83,22 @@ function initMap() {
           ]
         }
       };
-
+      console.log("Adding undo state");
+      undoStates.push($.extend(true, {}, vertices));
+      
       vertices.features.push(vertex);
       bounds = d3.geo.bounds(vertices);
 
       update(); 
+      
     } 
+    
+    if (movingVertex) {      
+      
+      console.log("Adding undo state");      
+      undoStates.push($.extend(true, {}, vertices));
+      
+    }
     map.dragging.enable();
     movingVertex = false;  
   });
@@ -100,8 +110,18 @@ function initMap() {
 
 }
 
+function undo() {
+  if (undoStates.length) {
+    vertices = undoStates.pop();
+    update();
+  } else {
+    resetMap();
+  }
+}
 
-function reset() {
+
+function resetMap() {
+  undoStates = [];
   vertices = {
     type: "FeatureCollection",
     features: []
@@ -110,14 +130,25 @@ function reset() {
 }
 
 
+var fps = 40;
+var now;
+var then = Date.now();
+var interval = 1000/fps;
+var delta;
 function pulseRadius() {
-  if (movingVertex) {
-    var x = vertices.features[movingVertexIndex].properties.x + 0.07;
-    var radiusNew = (Math.sin(x) + 1) / 2 * (radiusMax - radiusMin) + radiusMin;
+  now = Date.now();
+  delta = now - then;
+     
+  if (delta > interval) {
+    if (movingVertex) {
+      var x = vertices.features[movingVertexIndex].properties.x + 0.07;
+      var radiusNew = (Math.sin(x) + 1) / 2 * (radiusMax - radiusMin) + radiusMin;
 
-    vertices.features[movingVertexIndex].properties.radius = radiusNew;
-    vertices.features[movingVertexIndex].properties.x = x;
-    update();
+      vertices.features[movingVertexIndex].properties.radius = radiusNew;
+      vertices.features[movingVertexIndex].properties.x = x;
+      update();
+    }
+    then = now - (delta % interval);         
   }
   return !movingVertex;
 }
