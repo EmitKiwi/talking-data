@@ -75,7 +75,10 @@ html, body, #map {
 }
 
 svg {
-  stroke: #74c200;
+/*  stroke: #aed31d;*/
+/*  stroke: #b3dc10;*/
+  stroke: #00f3a1;
+/*  stroke: rgb(245,144,0);*/
 }
 
 .edges .last {
