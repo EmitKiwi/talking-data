@@ -4,21 +4,84 @@
     <title>Talking Data</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-	<link rel="stylesheet" href="/style.css" />
+	<link rel="stylesheet" href="style.css" />
+	<link rel="stylesheet" href="server.css" />
 	<script src="jquery-2.0.3.min.js"></script>
   <script src="d3.v3.min.js" charset="utf-8"></script>
   <script>
-    d3.json("data.json", function(error, json) {
-      d3.select("ol").selectAll("li")
-        .data(json)
-        .enter()
-      .append("li")
-      .append("a")
-        .attr("href", function(d) { return "/svg/" + d.id + ".svg"; })
-        .html(function(d) { return d.name; });        
+  
+  // TODO: show SVG small
+  // TODO: pagination
+  // TODO: delete
+  // TODO: set done
+  
+    d3.json("stories", function(error, json) {
+      var li = d3.select("ol").selectAll("li")
+          .data(json, function(d) { return d.id; })
+          .enter()
+        .append("li");
+      
+      
+      // id
+      
+      // Time
+      //moment("20111031", "YYYYMMDD").fromNow();
+      
+      // done
+      // type
+      // kleine SVG
+      // link naar SVG
+      // remove
+      
+      li.append("h2")
+        .html(function(d) { return d.name; });
+        
+      var p = li.append("p");
+      
+      p.append("button")
+          .attr("class", "delete")
+          .html("Delete")
+          .on("click", function(e) {
+            // TODO ask!
+            
+            $.ajax({
+                url: "stories/" + e.id,
+                type: 'DELETE',
+                success: function(result) {
+                    // Do something with the result
+                }
+            });
+            
+
+          });
+      
+      p.append("button")
+          .attr("class", "done")
+          .html("Done")
+          .on("click", function(e) {
+            // TODO ask!
+        
+            $.ajax({
+                url: "stories/" + e.id + "/done",
+                type: 'POST',
+                data: JSON.stringify({done: true}),
+                success: function(result) {
+                    // Do something with the result
+                }
+            });
+        
+
+          });
+     
+      
+      // li.append("a")
+      //   .attr("href", function(d) { return "/stories/" + d.id + ".svg"; })
+      //   .html(function(d) { return d.name; });
       // .append("div")
       //   .html(function(d) { return d.svg; });
     });
+    
+    
   </script>
 </head>
 <body>

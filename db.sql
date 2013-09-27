@@ -2,13 +2,15 @@
 
 -- DROP TABLE talkingdata;
 
-CREATE TABLE talkingdata
+CREATE TABLE stories
 (
-  id serial NOT NULL,
+  id text PRIMARY KEY,
   name text,
   svg text,
   geojson text,
-  geom geometry,
+  type text,
+  done boolean DEFAULT false,
+  deleted boolean DEFAULT false,
   date_created timestamp without time zone DEFAULT now()
 )
 WITH (

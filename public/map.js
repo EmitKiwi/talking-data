@@ -17,8 +17,10 @@ function initMap() {
   //var tileUrl = "http://{s}.tiles.mapbox.com/v3/bertspaan.map-dvysiubb/{z}/{x}/{y}.png";
 
   map = new L.Map("map", {
-      minZoom: 2
-    }).addLayer(new L.TileLayer(tileUrl));
+      minZoom: 2      
+    }).addLayer(new L.TileLayer(tileUrl, {
+      //opacity: 0.4
+    }));
 
   map.removeControl(map.zoomControl);
   map.removeControl(map.attributionControl);
@@ -95,8 +97,7 @@ function initMap() {
     
     if (movingVertex) {      
       
-      console.log("Adding undo state");      
-      undoStates.push($.extend(true, {}, vertices));
+
       
     }
     map.dragging.enable();
@@ -112,6 +113,11 @@ function initMap() {
 
 function undo() {
   if (undoStates.length) {
+    vertices = {
+      type: "FeatureCollection",
+      features: []
+    };
+    update();
     vertices = undoStates.pop();
     update();
   } else {
@@ -130,7 +136,7 @@ function resetMap() {
 }
 
 
-var fps = 40;
+var fps = 60;
 var now;
 var then = Date.now();
 var interval = 1000/fps;
@@ -149,6 +155,9 @@ function pulseRadius() {
       update();
     }
     then = now - (delta % interval);         
+  }
+  if (!movingVertex) {
+    undoStates.push($.extend(true, {}, vertices));
   }
   return !movingVertex;
 }

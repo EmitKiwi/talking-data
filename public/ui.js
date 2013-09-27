@@ -36,14 +36,21 @@ function validate(){
     // Add black stroke color
     xml = xml.replace(/ stroke/g, " stroke=\"#000000\" stroke");  
 
+    // Remove properties.x from vertices
+    for (var i = 0; i < vertices.features.length; i++) {
+      var feature = vertices.features[i];
+      delete feature.properties["x"];
+    }
+
     var data = {
       name: $("#user_name").val(),
+      type: $('input[name="type"]:checked').val(),
       svg: xml,
       geojson: vertices
     };
 
     // Send to server
-    $.ajax("/save", {
+    $.ajax("/stories", {
       data : JSON.stringify(data),
         contentType : 'application/json',
         type : 'POST'
