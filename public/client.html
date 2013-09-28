@@ -6,16 +6,12 @@
 		<meta name="apple-mobile-web-app-capable" content="yes" />
 		<meta name="apple-mobile-web-app-status-bar-style" content="black" />
 		<link rel="apple-touch-icon" href="apple-touch-icon.png"/>
-		
-		<link rel="stylesheet" href="css/jquerymobile/default_theme.css" />
-		<link rel="stylesheet" href="css/jquerymobile/jquery.mobile.structure-1.3.2.min.css" />
-	
+			
 		<link rel="stylesheet" href="style.css"/>
 		<link rel="stylesheet" href="leaflet.css" />
 		<link rel="stylesheet" href="style.css" />
 		
 		<script type="text/javascript" src="jquery-2.0.3.min.js"></script>
-		<script type="text/javascript" src="jquery.mobile-1.3.2.min.js"></script>
 	  
 		<script src="d3.v3.min.js" charset="utf-8"></script>
 		<script src="leaflet.js"></script>
@@ -25,102 +21,69 @@
 				
 </head>
 <body>
-		<!-- map page -->		
-    <div data-role="page" id="map_page"> 
- 
-       <div data-role="content">
-       		<div id="map"></div>
-       </div><!-- /content --> 
-
-			<div data-role="footer" data-id="footer_map" data-position="fixed">
-				<div data-role="navbar" data-iconpos="left">
-					<ul>
-						<li><a href="#info" data-icon="info" data-transition="fade">Info</a></li>
-						<li><a onclick="reset(false)" data-icon="delete" id="reset">Reset</a></li>
-						<li><a onclick="undo()" data-icon="undo">Undo</a></li>
-						<li><a onclick="save()" data-icon="check" data-transition="flip">Create</a></li>
-					</ul>
-				</div><!-- /navbar -->
-			</div><!-- /footer -->
-    </div><!-- /page -->
-
-		<!-- fill in form page -->
-		<div data-role="page" data-theme="a" id="user_form">
-			<div data-role="header" data-position="fixed" data-theme="a">
-      	<h1>Talking Data - Create</h1>
-      </div><!-- /header -->
-			
-			<div data-role="content">
-				<div id="save_form">
-					<from>
-						<label for="name">Name</label>
-				  	<input type="text" name="name" id="user_name" value="">
-						<hr>
-							<label><input type="radio" name="type" value="shirt">T-shirt - &#8364; 5,- )</label>
-							<label><input type="radio" name="type" value="wood">Wood &#8364; 5,- ) </label>
-							<label><input type="radio" name="type" value="huge">Huge! - &#8364; 50,- </label>
-						<hr>
-					</form>
-					<!-- <div class="rectangle">
-											<img id="preview" src="images/preview.png">							
-										</div> -->
-				</div>
-			</div><!-- /content -->
-
-			<div data-role="footer" data-id="footer_form" data-position="fixed">
-				<div data-role="navbar" data-iconpos="left">
-					<ul>
-						<li><a href="#map_page" data-icon="back" data-transition="flip">Back to map</a></li>
-						<li><a onclick="validate()" data-icon="check" data-transition="flip" id="save" >Send to production</a></li>
-
-					</ul>
-				</div><!-- /navbar -->
-			</div><!-- /footer -->
-		
-		</div><!-- /page -->
-		
-		<!-- info pagepage -->
-		<div data-role="page" id="info">
-
-      <div data-role="header" data-position="fixed" data-theme="a">
-      	<h1>Info &amp; instructions</h1>
-       </div><!-- /header -->
-
-			<div data-role="content">
-					<div style="padding:1em;">
-					<h4>Create your personal story on the map.</h4>	
-					<p>Waag Society invites you to tell your personal story and create beautiful data graphics that you can print on your t-shirt, dress or bag or cut-out in wood or plastic as a earring or necklace. How? By selecting the places that you share special memories with or that are either way important to you.
-
-						<br>Add places by push and drag on the map, push and hold a circle to change the size. When your story is set on the map you can send it to produce it.
-					</p>
-					</div>
-				<div class="rectangle">
-					<img src="images/preview_cutout.jpg">							
-				</div>
-				
-			</div><!-- /content -->
-			
-			<div data-role="footer" data-id="footer_info" data-position="fixed">
-				<div data-role="navbar" data-iconpos="left">
-					<ul>
-						<li><a href="#map_page" data-icon="back" data-transition="fade">Back to map</a></li>
-					</ul>
-				</div><!-- /navbar -->
-			</div><!-- /footer -->
-		
-		</div><!-- /page -->
-		
-
-		
-		<!-- feed back dialog/error -->
-		<div data-role="page" id="feedBack">
-		  <div data-role="header">
-		    <h2 id="feedback_header"></h2>
-		  </div>
-		  <div data-role="content">
-		    <p id="feedback_txt"></p>
-		  </div>
-		</div>
-
+  <div id="map"></div>
+  <div id="info" class="container hidden">
+    <div class="content">
+      <h1>Talking Data</h1>
+      <h2>Create your personal story on a map</h2>
+      <p>
+				Waag Society invites you to tell your personal story and create beautiful data graphics that you can print on your t-shirt, dress or bag or cut-out in wood or plastic as a earring or necklace. How? By selecting the places that you share special memories with or that are either way important to you.
+      </p>
+      <p>
+				Add places by push and drag on the map, push and hold a circle to change the size. When your story is set on the map you can send it to produce it.
+			</p>
+      <p>
+        <img src="images/preview_cutout.jpg">
+      </p>
+      <table class="menu">
+        <tr>
+          <td class="action-showmap"><a href="#reset">Start</a></id>
+        </tr>
+      </table>
+      
+    </div>    
+  </div>
+  <div id="create" class="container hidden">
+    <div class="content">
+      <h1>Talking Data - Create Story</h1>
+      <p>
+        blblasbdldasbdl
+      </p>
+			<form>
+			  <label for="name">Name</label>
+			 	<input type="text" name="name" id="username" value="">
+				<hr>
+				<label><input type="radio" name="type" value="wood" checked="checked">Wood &#8364; 5,-</label>
+        <label><input type="radio" name="type" value="sticker">Sticker - &#8364; 5,-</label>
+				<label><input type="radio" name="type" value="huge">Huge! - &#8364; 50,-</label>
+			</form>
+      <p>
+        hier uitleg over bonnetjes en waar je moet betalen. definitive size 
+      </p>
+				<!-- <div class="rectangle">
+          <img id="preview" src="images/preview.png">							
+				</div> -->
+          
+      <table class="menu">
+        <tr>
+          <td class="action-showmap"><a href="#reset">Back</a></id>
+          <td class="action-send"><a href="#create">Create</a></td>
+        </tr>
+      </table>
+      
+    
+<!--           <li><a href="#map_page" data-icon="back" data-transition="flip">Back to map</a></li>
+          <li><a onclick="validate()" data-icon="check" data-transition="flip" id="save" >Send to production</a></li> -->
+		</div>    
+  </div>
+  <div id="footer">
+    <table class="menu">
+      <tr>
+        <td class="action-reset"><a href="#reset">Reset</a></id>
+        <td class="action-undo"><a href="#undo">Undo</a></td>
+        <td class="action-create"><a href="#create">Create</a></td>
+      </tr>
+    </table>
+  </div>
 </body>
 </html>

@@ -10,141 +10,157 @@
 	<script src="jquery-2.0.3.min.js"></script>
   <script src="d3.v3.min.js" charset="utf-8"></script>
   <script>
+    $(document).ready(function() {
   
-  // TODO: show SVG small
-  // TODO: pagination
-  // TODO: delete
-  // TODO: set done
+      // TODO: pagination
+      // TODO: delete
   
-    d3.json("stories", function(error, json) {
-      var li = d3.select("ol").selectAll("li")
-          .data(json.stories, function(d) { return [d.id, d.done]; })
-          .enter()
-        .append("li");
+      function update() {
+  
+        d3.json("stories", function(error, json) {
+          var li = d3.select("ol").selectAll("li")
+              .data(json.stories, function(d) { return [d.id, d.done]; })
+              .enter()
+            .append("li")
+              .attr("class", function(d) { return d.done ? "done" : ""; });
       
-    
-    
-      // link naar SVG
-      // remove
-      
-      li.append("h2")
-          .html(function(d) { return d.name; });
+          li.append("h2")
+              .html(function(d) { return d.name; });
         
-      li.append("h3")
-          .attr("class", function(d) { return d.done ? "done" : ""; })
-          .html(function(d) { return d.type; });
+          li.append("h3")
+              .html(function(d) { return d.type; });
         
-      var div = li.append("div")
+          var div = li.append("div")
       
-      var table = div.append("table");
+          var table = div.append("table");
       
-      rowSvg = table.append("tr");
-      rowSvg.append("td")
-          .html("SVG:");
-      rowSvg.append("td")
-        .append("a")
-          .attr("href", function(d) { return "stories/" + d.id + ".svg"; })
-          .html(function(d) { return d.id + ".svg"; });
+          rowSvg = table.append("tr");
+          rowSvg.append("td")
+              .html("SVG:");
+          rowSvg.append("td")
+            .append("a")
+              .attr("href", function(d) { return "stories/" + d.id + ".svg"; })
+              .html(function(d) { return d.id + ".svg"; });
  
-      rowId = table.append("tr");
-      rowId.append("td")
-          .html("ID:");
-      rowId.append("td")
-          .attr("class", "id")
-          .html(function(d) { return d.id; });
+          rowId = table.append("tr");
+          rowId.append("td")
+              .html("ID:");
+          rowId.append("td")
+              .attr("class", "id")
+              .html(function(d) { return d.id; });
 
-      rowTime = table.append("tr");
-      rowTime.append("td")
-          .html("Time:");
-      rowTime.append("td")
-          .html(function(d) { return moment(d.date_created).fromNow(); });
+          rowTime = table.append("tr");
+          rowTime.append("td")
+              .html("Time:");
+          rowTime.append("td")
+              .html(function(d) { return moment(d.date_created).fromNow(); });
 
-      rowType = table.append("tr");
-      rowType.append("td")
-          .html("Type:");
-      rowType.append("td")
-          .html(function(d) { return d.type; });
+          rowType = table.append("tr");
+          rowType.append("td")
+              .html("Type:");
+          rowType.append("td")
+              .html(function(d) { return d.type; });
 
-      rowStatus = table.append("tr");
-      rowStatus.append("td")
-          .html("Status:");
-      rowStatus.append("td")
-        .append("a")
-          .attr("href", "#")
-          .html(function(d) { return d.done ? "Done" : "Not done"; })
-          .on("click", function(e) {
-            $.ajax({
-              url: "stories/" + e.id + "/done",
-              type: 'POST',
-              data: JSON.stringify({done: !d.done}),
-              success: function(result) {
-                // Do something with the result
-              }
-            });
-          });
-      
-      rowStatus = table.append("tr").attr("class", "delete");
-      rowStatus.append("td");
-      rowStatus.append("td")
-        .append("a")
-          .attr("href", "#")
-          .html("Delete")
-          .on("click", function(e) {
-            if(confirm("Do you really want to delete this story?")) {
-              $.ajax({
-                  url: "stories/" + e.id,
-                  type: 'DELETE',
+          rowStatus = table.append("tr");
+          rowStatus.append("td")
+              .html("Status:");
+          rowStatus.append("td")
+            .append("a")
+              .attr("href", "#")
+              .html(function(d) { return d.done ? "Done" : "Not done"; })
+              .on("click", function(d) {
+                $.ajax({
+                  url: "stories/" + d.id + "/done",
+                  type: 'POST',
+                  data: JSON.stringify({done: !d.done}),
                   success: function(result) {
-                      // Do something with the result
+                    update();
                   }
+                });
               });
-            }
-          });
-          
-      div.append("div")
-          .attr("class", "preview")
-          .html(function(d) { return d.svg; });    
-          
-      div.append("div").attr("class", "clear");
       
-      $(".preview svg").each(function() {
-        var svg = this;
+          rowStatus = table.append("tr").attr("class", "delete");
+          rowStatus.append("td");
+          rowStatus.append("td")
+            .append("a")
+              .attr("href", "#")
+              .html("Delete")
+              .on("click", function(e) {
+                if(confirm("Do you really want to delete this story?")) {
+                  $.ajax({
+                      url: "stories/" + e.id,
+                      type: 'DELETE',
+                      success: function(result) {
+                        update();
+                      }
+                  });
+                }
+              });
+      
+          div.append("a")
+              .attr("href", function(d) { return "stories/" + d.id + ".svg"; })
+            .append("div")
+              .attr("class", "preview")
+              .html(function(d) { return d.svg; });    
+          
+          div.append("div").attr("class", "clear");
+      
+          $(".preview svg").each(function() {
+            var svg = this;
         
-        var minX = Number.POSITIVE_INFINITY;
-        var maxX = Number.NEGATIVE_INFINITY;
-        var minY = Number.POSITIVE_INFINITY;
-        var maxY = Number.NEGATIVE_INFINITY;
+            var minX = Number.POSITIVE_INFINITY;
+            var maxX = Number.NEGATIVE_INFINITY;
+            var minY = Number.POSITIVE_INFINITY;
+            var maxY = Number.NEGATIVE_INFINITY;
 
-        $("circle", this).each(function() {
+            $("circle", this).each(function() {
           
-          var cx = parseFloat($(this).attr("cx"));
-          var cy = parseFloat($(this).attr("cy"));
-          var r = parseFloat($(this).attr("r"));
+              var cx = parseFloat($(this).attr("cx"));
+              var cy = parseFloat($(this).attr("cy"));
+              var r = parseFloat($(this).attr("r"));
           
-          if (cx - r < minX) {
-            minX = cx - r;
-          } else if (cx + r > maxX) {
-            maxX = cx + r;            
-          }
+              if (cx - r < minX) {
+                minX = cx - r;
+              }
+              
+              if (cx + r > maxX) {
+                maxX = cx + r;            
+              }
 
-          if (cy - r < minY) {
-            minY = cy - r;
-          } else if (cy + r > maxY) {
-            maxY = cy + r;            
-          }
+              if (cy - r < minY) {
+                minY = cy - r;
+              }
+              
+              if (cy + r > maxY) {
+                maxY = cy + r;            
+              }
                     
-        });
-                
-        var transform =  "translate(" + (-minX / 2) + "," + (-minY / 2) + ")";
+            });
+            
+            minX -= 10;
+            maxX += 10;
+            minY -= 10;
+            maxY += 10;
 
-        // Preview is 300px x 300px
-        var scale = "scale(" + Math.min(300 / (maxX - minX), 300 / (maxY - minY)) + ")";
+            // Preview is 300px x 300px
+            var s =  Math.min(350 / (maxX - minX), 250 / (maxY - minY));
+            var scale = "scale(" + s + ")";
+            
+            var transform =  "translate(" + (-minX * s) + "," + (-minY * s) + ")";
         
-        $(this).attr("transform", transform + " " + scale);
+            $(this).attr("transform", transform + " " + scale);
         
-      });
-    });
+          });
+        });
+      
+      }
+      update();
     
+      $("#refresh").on("click", function() {
+        update();
+      });
+      
+    });
     
   </script>
 </head>

@@ -17,12 +17,12 @@ function initMap() {
   //var tileUrl = "http://{s}.tiles.mapbox.com/v3/bertspaan.map-dvysiubb/{z}/{x}/{y}.png";
 
   map = new L.Map("map", {
-      minZoom: 2      
+      minZoom: 2,
+      boxZoom: false  
     }).addLayer(new L.TileLayer(tileUrl, {
       //opacity: 0.4
     }));
 
-  map.removeControl(map.zoomControl);
   map.removeControl(map.attributionControl);
   map.setView([52.3674, 4.915], 5);        
 
@@ -35,7 +35,6 @@ function initMap() {
     type: "FeatureCollection",
     features: []
   };
-
 
   map.on("movestart", function(e) {
     addingVertex = false;
@@ -147,7 +146,7 @@ function pulseRadius() {
      
   if (delta > interval) {
     if (movingVertex) {
-      var x = vertices.features[movingVertexIndex].properties.x + 0.07;
+      var x = vertices.features[movingVertexIndex].properties.x + 0.08;
       var radiusNew = (Math.sin(x) + 1) / 2 * (radiusMax - radiusMin) + radiusMin;
 
       vertices.features[movingVertexIndex].properties.radius = radiusNew;
@@ -157,6 +156,7 @@ function pulseRadius() {
     then = now - (delta % interval);         
   }
   if (!movingVertex) {
+    console.log("Adding undo state");
     undoStates.push($.extend(true, {}, vertices));
   }
   return !movingVertex;
@@ -275,8 +275,10 @@ function f_y(i) {
 
 function d(i, c) {
   if (vertices.features.length) {
+    // Return difference between two points on axis
+    // (plus tiny fraction to make sure 90 degree angles don't cause problems...)
     return project(vertices.features[(i + 1) % vertices.features.length].geometry.coordinates)[c] 
-      - project(vertices.features[i].geometry.coordinates)[c];
+      - project(vertices.features[i].geometry.coordinates)[c] + 0.0001;
   } else {
     return 0;
   }

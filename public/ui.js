@@ -1,20 +1,42 @@
 var timer;
 
 $(document).bind("ready", function() {
-	//window.addEventListener('resize', onWindowResize, false);
 	initMap();
+
+  $(".action-reset").on("click", function(e) {
+    reset();
+  });
+  
+  $(".action-undo").on("click", function(e) {
+    undo();
+  });
+  
+  $(".action-create").on("click", function(e) {
+    create();
+  });
+  
+  $(".action-showmap").on("click", function(e) {
+    showMap();
+  });
+  
+  $(".action-send").on("click", function(e) {
+    //create();
+  });
+
 });
 
-
-function save(){
-	console.log("save clicked");
-	$.mobile.changePage('#user_form', { transition: "flip"} );	
+function showMap() {
+  $(".container").addClass("hidden");
 }
 
-function validate(){
-	console.log("send clicked");
+
+function create() {
+	$("#create").removeClass("hidden");
+}
+
+function validate() {
 	
-	if($("#user_name").val().length<3){
+	if ($("#username").val().length<3) {
 		
 		$('#feedback_header').html("Validation required");
 		$('#feedback_txt').html("Fill in your name.<br>Close this dialog and retry.");			
@@ -43,7 +65,7 @@ function validate(){
     }
 
     var data = {
-      name: $("#user_name").val(),
+      name: $("#username").val(),
       type: $('input[name="type"]:checked').val(),
       svg: xml,
       geojson: vertices
@@ -68,21 +90,13 @@ function validate(){
 }
 
 
-function reset(saved) {
-  clearInterval(timer);
+function reset() {
+  
+  $("#info").removeClass("hidden");
+  
+  // Set form values back to default
+  $("#username").val("");
+  $('input[value="wood"]').prop('checked', true);
+  
   resetMap();
-  if (saved) {		
-  	timer = setInterval(function(){
-  	  $.mobile.changePage('#map_page', {transition: 'flip'});
-  	  clearInterval(timer); 
-  	  }, 2000);
-  	console.log("reset");			
-  } else {
-    
-  	$.mobile.changePage('#reset_page', {transition: 'fade'}); 			
-  	timer = setInterval(function(){
-  	  $.mobile.changePage('#map_page', {transition: 'fade'});
-  	  clearInterval(timer);
-  	  },250);
-  }
 }
