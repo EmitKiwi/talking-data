@@ -128,29 +128,31 @@ end
 
 post '/stories' do
   data = JSON.parse(request.body.read)
-  puts data.inspect
   name = data["name"] rescue nil
   type = data["type"] rescue nil
   features = data["geojson"]["features"] rescue nil
   
   if name and type and features and features.kind_of?(Array)and features.length
-    # check of goed opgeslagen is
   
     # multipoint = { 
     #   type: "MultiPoint",
     #   coordinates: features.map { |f| f["geometry"]["coordinates"] }
     # }
+    
+    begin
+      stories.insert(
+        id: id_from_name(name),
+        name: name,
+        type: type,
+        svg: data["svg"],
+        geojson: data["geojson"].to_json    
+      )
+    rescue
+      return failed
+    end
   
-    stories.insert(
-      id: id_from_name(name),
-      name: name,
-      type: type,
-      svg: data["svg"],
-      geojson: data["geojson"].to_json    
-    )
-  
-    success
+    return success
   else
-    failed
+    return failed
   end
 end

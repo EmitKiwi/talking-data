@@ -22,6 +22,13 @@ $(document).bind("ready", function() {
   $(".action-send").on("click", function(e) {
     send();
   });
+  
+  $('html').keyup(function(e) { 
+    if(e.keyCode == 8) {
+      undo();
+    }
+  });  
+  
 
 });
 
@@ -73,15 +80,22 @@ function send() {
 
     // Send to server
     $.ajax("/stories", {
-      data : JSON.stringify(data),
-        contentType : 'application/json',
-        type : 'POST'
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        type: 'POST',
+        success: function(data) {
+          var json = JSON.parse(data);
+          if (json.status == "success") {
+            alert("Thanks! Please go to the Fablab to pay and to start production!");
+        		$("#create").addClass("hidden");
+            reset();
+          } else {
+            alert("You're not the only one tonight with this name. Please choose another name!");
+          }
+        }
       }
     );
 	  
-    alert("Thanks! Please go to the Fablab to pay and to start production!");
-		$("#create").addClass("hidden");
-    reset();
     
 	}
 
