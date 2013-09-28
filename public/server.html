@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>    
-    <title>Talking Data</title>
+    <title>Talking Data - Stories</title>
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
 	<link rel="stylesheet" href="style.css" />
 	<link rel="stylesheet" href="server.css" />
+	<script src="moment.min.js"></script>
 	<script src="jquery-2.0.3.min.js"></script>
   <script src="d3.v3.min.js" charset="utf-8"></script>
   <script>
@@ -17,75 +18,142 @@
   
     d3.json("stories", function(error, json) {
       var li = d3.select("ol").selectAll("li")
-          .data(json, function(d) { return d.id; })
+          .data(json.stories, function(d) { return [d.id, d.done]; })
           .enter()
         .append("li");
       
-      
-      // id
-      
-      // Time
-      //moment("20111031", "YYYYMMDD").fromNow();
-      
-      // done
-      // type
-      // kleine SVG
+    
+    
       // link naar SVG
       // remove
       
       li.append("h2")
-        .html(function(d) { return d.name; });
+          .html(function(d) { return d.name; });
         
-      var p = li.append("p");
+      li.append("h3")
+          .attr("class", function(d) { return d.done ? "done" : ""; })
+          .html(function(d) { return d.type; });
+        
+      var div = li.append("div")
       
-      p.append("button")
-          .attr("class", "delete")
+      var table = div.append("table");
+      
+      rowSvg = table.append("tr");
+      rowSvg.append("td")
+          .html("SVG:");
+      rowSvg.append("td")
+        .append("a")
+          .attr("href", function(d) { return "stories/" + d.id + ".svg"; })
+          .html(function(d) { return d.id + ".svg"; });
+ 
+      rowId = table.append("tr");
+      rowId.append("td")
+          .html("ID:");
+      rowId.append("td")
+          .attr("class", "id")
+          .html(function(d) { return d.id; });
+
+      rowTime = table.append("tr");
+      rowTime.append("td")
+          .html("Time:");
+      rowTime.append("td")
+          .html(function(d) { return moment(d.date_created).fromNow(); });
+
+      rowType = table.append("tr");
+      rowType.append("td")
+          .html("Type:");
+      rowType.append("td")
+          .html(function(d) { return d.type; });
+
+      rowStatus = table.append("tr");
+      rowStatus.append("td")
+          .html("Status:");
+      rowStatus.append("td")
+        .append("a")
+          .attr("href", "#")
+          .html(function(d) { return d.done ? "Done" : "Not done"; })
+          .on("click", function(e) {
+            $.ajax({
+              url: "stories/" + e.id + "/done",
+              type: 'POST',
+              data: JSON.stringify({done: !d.done}),
+              success: function(result) {
+                // Do something with the result
+              }
+            });
+          });
+      
+      rowStatus = table.append("tr").attr("class", "delete");
+      rowStatus.append("td");
+      rowStatus.append("td")
+        .append("a")
+          .attr("href", "#")
           .html("Delete")
           .on("click", function(e) {
-            // TODO ask!
-            
-            $.ajax({
-                url: "stories/" + e.id,
-                type: 'DELETE',
-                success: function(result) {
-                    // Do something with the result
-                }
-            });
-            
-
+            if(confirm("Do you really want to delete this story?")) {
+              $.ajax({
+                  url: "stories/" + e.id,
+                  type: 'DELETE',
+                  success: function(result) {
+                      // Do something with the result
+                  }
+              });
+            }
           });
+          
+      div.append("div")
+          .attr("class", "preview")
+          .html(function(d) { return d.svg; });    
+          
+      div.append("div").attr("class", "clear");
       
-      p.append("button")
-          .attr("class", "done")
-          .html("Done")
-          .on("click", function(e) {
-            // TODO ask!
+      $(".preview svg").each(function() {
+        var svg = this;
         
-            $.ajax({
-                url: "stories/" + e.id + "/done",
-                type: 'POST',
-                data: JSON.stringify({done: true}),
-                success: function(result) {
-                    // Do something with the result
-                }
-            });
-        
+        var minX = Number.POSITIVE_INFINITY;
+        var maxX = Number.NEGATIVE_INFINITY;
+        var minY = Number.POSITIVE_INFINITY;
+        var maxY = Number.NEGATIVE_INFINITY;
 
-          });
-     
-      
-      // li.append("a")
-      //   .attr("href", function(d) { return "/stories/" + d.id + ".svg"; })
-      //   .html(function(d) { return d.name; });
-      // .append("div")
-      //   .html(function(d) { return d.svg; });
+        $("circle", this).each(function() {
+          
+          var cx = parseFloat($(this).attr("cx"));
+          var cy = parseFloat($(this).attr("cy"));
+          var r = parseFloat($(this).attr("r"));
+          
+          if (cx - r < minX) {
+            minX = cx - r;
+          } else if (cx + r > maxX) {
+            maxX = cx + r;            
+          }
+
+          if (cy - r < minY) {
+            minY = cy - r;
+          } else if (cy + r > maxY) {
+            maxY = cy + r;            
+          }
+                    
+        });
+                
+        var transform =  "translate(" + (-minX / 2) + "," + (-minY / 2) + ")";
+
+        // Preview is 300px x 300px
+        var scale = "scale(" + Math.min(300 / (maxX - minX), 300 / (maxY - minY)) + ")";
+        
+        $(this).attr("transform", transform + " " + scale);
+        
+      });
     });
     
     
   </script>
 </head>
 <body>
-  <ol>
-  </ol>
+  <article>
+    <h1>Talking Data - Stories</h2>
+    <button id="refresh">Refresh</button>
+    <ol>
+    </ol>
+  </article>
 </body>
 </html>

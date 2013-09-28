@@ -71,10 +71,14 @@ end
 get '/stories/:id' do |id|
   content_type 'application/json'
   data = stories.where(:id => id).all
-      
-  data.each do |story| 
-    story[:geojson] = JSON.parse(story[:geojson]) if story[:geojson]
-  end.to_json
+ 
+  {
+    status: "success",
+    stories:     
+      data.each do |story| 
+        story[:geojson] = JSON.parse(story[:geojson]) if story[:geojson]
+      end
+  }.to_json
 end
 
 delete '/stories/:id' do |id|
@@ -107,9 +111,13 @@ get '/stories' do
   
   data = dataset.all
       
-  data.each do |story| 
-    story[:geojson] = JSON.parse(story[:geojson]) if story[:geojson]
-  end.to_json
+  {
+    status: "success",
+    stories:
+      data.each do |story| 
+        story[:geojson] = JSON.parse(story[:geojson]) if story[:geojson]
+      end
+  }.to_json
 end
 
 post '/stories/:id/done' do |id|

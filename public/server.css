@@ -1,4 +1,65 @@
+body {
+  margin: 0;
+  padding: 0;
+}
+
+article {
+  width: 800px;
+  margin: auto;
+}
+
+ol {
+  list-style: none; 
+  margin: 0;
+  padding: 2em;
+
+}
+
+h2, h3 {
+  margin: 0;
+  display: inline;
+}
+
+h3 {
+  float: right;
+}
+
+.id {
+  font-family: Monospace;
+}
+
+.done {
+  color: #B0FF5C;
+}
+
+.clear {
+  clear: both;
+}
+
+table {
+  float: left;
+  width: 350px;
+}
+
+.preview {
+  float: right;
+  width: 350px;
+  height: 300px;
+}
+
+.delete td {
+  padding-top: 1em;
+}
+
 li {
   background-color: white;
   color: black;
+  padding: 1em;
+  margin: 0.5em 0;
+  border-radius: 7px;
+}
+
+svg {
+  width: 100%;
+  height: 100%
 }
