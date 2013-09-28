@@ -46,15 +46,11 @@ end
 ################################################################################################################
 
 get '/' do
-  redirect '/index.html' 
-end
-
-get '/client' do
-  redirect '/client.html'
+  send_file 'public/client.html'
 end
 
 get '/server' do
-  redirect '/server.html' 
+  send_file 'public/server.html'
 end 
 
 ################################################################################################################
