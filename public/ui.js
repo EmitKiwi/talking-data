@@ -20,7 +20,7 @@ $(document).bind("ready", function() {
   });
   
   $(".action-send").on("click", function(e) {
-    //create();
+    send();
   });
 
 });
@@ -34,15 +34,15 @@ function create() {
 	$("#create").removeClass("hidden");
 }
 
-function validate() {
+function send() {
 	
-	if ($("#username").val().length<3) {
-		
-		$('#feedback_header').html("Validation required");
-		$('#feedback_txt').html("Fill in your name.<br>Close this dialog and retry.");			
-		$.mobile.changePage('#feedBack', {transition: 'pop', role: 'dialog'}); 
-		
+	if ($("#username").val().length == 0) {
+    alert("Please enter your name");
+	} else if ($("#username").val().length < 3) {
+		alert("Your name must be longer than 3 characters");
 	} else {
+    // TODO: check if features.length
+    
 	  var svg  = document.getElementById("drawing");
   	var xml = (new XMLSerializer).serializeToString(svg);
 
@@ -79,11 +79,9 @@ function validate() {
       }
     );
 	  
-		//feedback dialog
-		$('#feedback_header').html("Saving");
-		$.mobile.changePage('#feedBack', {transition: 'pop', role: 'dialog'}); 
-		$('#feedback_txt').html("Thanks! Your map is saved and sent to production!");
-		reset(true);
+    alert("Thanks! Please go to the Fablab to pay and to start production!");
+		$("#create").addClass("hidden");
+    reset();
     
 	}
 
