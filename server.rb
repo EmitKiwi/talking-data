@@ -49,8 +49,8 @@ get '/' do
   send_file 'public/client.html'
 end
 
-get '/server' do
-  send_file 'public/server.html'
+get '/admin' do
+  send_file 'public/admin.html'
 end 
 
 ################################################################################################################

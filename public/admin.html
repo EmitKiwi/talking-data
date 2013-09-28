@@ -75,6 +75,7 @@
                   data: JSON.stringify({done: !d.done}),
                   success: function(result) {
                     update();
+                    return false;
                   }
                 });
               });
@@ -92,6 +93,7 @@
                       type: 'DELETE',
                       success: function(result) {
                         update();
+                        return false;                        
                       }
                   });
                 }
@@ -167,7 +169,6 @@
 <body>
   <article>
     <h1>Talking Data - Stories</h2>
-    <button id="refresh">Refresh</button>
     <ol>
     </ol>
   </article>
