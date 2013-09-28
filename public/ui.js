@@ -38,7 +38,9 @@ function showMap() {
 
 
 function create() {
-	$("#create").removeClass("hidden");
+  if (vertices.features.length > 0) {
+	  $("#create").removeClass("hidden");
+  }
 }
 
 function send() {

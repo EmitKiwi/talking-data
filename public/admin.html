@@ -18,11 +18,14 @@
       function update() {
   
         d3.json("stories", function(error, json) {
-          var li = d3.select("ol").selectAll("li")
-              .data(json.stories, function(d) { return [d.id, d.done]; })
-              .enter()
+          var story = d3.select("ol").selectAll("li")
+              .data(json.stories, function(d) { return [d.id, d.done]; });
+              
+          var li = story.enter()
             .append("li")
               .attr("class", function(d) { return d.done ? "done" : ""; });
+              
+          story.exit().remove();
       
           li.append("h2")
               .html(function(d) { return d.name; });
