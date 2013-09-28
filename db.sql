@@ -1,6 +1,4 @@
--- Table: talkingdata
-
--- DROP TABLE talkingdata;
+CREATE DATABASE talkingdata;
 
 CREATE TABLE stories
 (
@@ -12,9 +10,4 @@ CREATE TABLE stories
   done boolean DEFAULT false,
   deleted boolean DEFAULT false,
   date_created timestamp without time zone DEFAULT now()
-)
-WITH (
-  OIDS=FALSE
 );
-ALTER TABLE talkingdata
-  OWNER TO postgres;
