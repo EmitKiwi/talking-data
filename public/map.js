@@ -18,7 +18,8 @@ function initMap() {
 
   map = new L.Map("map", {
       minZoom: 2,
-      boxZoom: false  
+      boxZoom: false,
+      doubleClickZoom: false
     }).addLayer(new L.TileLayer(tileUrl, {
       //opacity: 0.4
     }));
@@ -111,13 +112,14 @@ function initMap() {
 }
 
 function undo() {
-  if (undoStates.length) {
+  if (undoStates.length > 1) {
     vertices = {
       type: "FeatureCollection",
       features: []
     };
     update();
-    vertices = undoStates.pop();
+    vertices = undoStates[undoStates.length - 2];
+    undoStates.pop();
     update();
   } else {
     resetMap();
@@ -165,7 +167,9 @@ function pulseRadius() {
 // Reposition the SVG to cover the features.
 function update() {    
   var vertex = vg.selectAll("circle")
-      .data(vertices.features)
+      .data(vertices.features, function(d, i) {
+        return [d.geometry.coordinates, d.properties.radius];
+      })
       .attr("cx", function(d) { return project(d.geometry.coordinates)[0]; })
       .attr("cy", function(d) { return project(d.geometry.coordinates)[1]; })
       .attr("r", function(d) { return d.properties.radius; });

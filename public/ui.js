@@ -107,7 +107,6 @@ function send() {
 function reset() {
   
   $("#info").removeClass("hidden");
-  
   // Set form values back to default
   $("#username").val("");
   $('input[value="wood"]').prop('checked', true);
