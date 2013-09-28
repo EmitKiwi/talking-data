@@ -40,7 +40,10 @@ function initMap() {
   map.on("movestart", function(e) {
     addingVertex = false;
   });
-
+  
+  map.on("zoomstart", function(e) {
+    addingVertex = false;
+  });
 
   map.on("mousedown", function(e) {
     addingVertex = true;
