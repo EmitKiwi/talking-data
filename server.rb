@@ -6,7 +6,7 @@ require "stringex"
 set :bind, '0.0.0.0'  
 set :public_folder, 'public'
 
-DB = Sequel.connect('postgres://postgres:postgres@localhost/talkingdata')
+DB = Sequel.connect('postgres://postgres:postgres@tdic/talkingdata')
 stories = DB[:stories]
 
 ################################################################################################################
