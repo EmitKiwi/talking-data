@@ -1,5 +1,7 @@
 CREATE DATABASE talkingdata;
 
+\connect talkingdata;
+
 CREATE TABLE stories
 (
   id text PRIMARY KEY,
